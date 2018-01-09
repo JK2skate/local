@@ -13,14 +13,14 @@ int count(int modo, int nargs, ...){
   int i;
   int num;
 
-  int count = 0;
-
+  int counting = 0;
+  va_start(ap, nargs);
   for(i = 0; i<nargs; i++){
-    if(mode==0){
+    if(modo==0){
       num = va_arg(ap, int);
 
       if(num%2==0){
-        count++;
+        counting++;
       }
 
     }else{
@@ -28,13 +28,15 @@ int count(int modo, int nargs, ...){
       num = va_arg(ap,int);
 
       if(num%2!=0){
-        count++
+        counting++;
       }
 
     }
   }
+  
+  va_end(ap);
 
-  return count;
+  return counting;
 
 }
 
@@ -46,9 +48,11 @@ int main(int argc, char **argv){
 
   count1 = count(0, 4, 2,5,3,6);
   count2 = count(1, 2, 2,5);
-  count2 = count(0, 8, 2,5,3,6, 9, 7,0,10);
+  count3 = count(0, 8, 2,5,3,6, 9, 7,0,10);
 
-  pritnf("Prueba 1. Resultado =  %i. Debería ser: 2", count1);
-  pritnf("Prueba 2. Resultado =  %i. Debería ser: 1", count2);
-  pritnf("Prueba 3. Resultado =  %i. Debería ser: 4", count3);
+  printf("Prueba 1. Resultado =  %d. Debería ser: 2", count1);
+  printf("Prueba 2. Resultado =  %d. Debería ser: 1", count2);
+  printf("Prueba 3. Resultado =  %d. Debería ser: 4", count3);
+  return 0;
+  
 }
