@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <stdarg.h>
 
+//gkhk
 
 int count(int modo, int nargs, ...){
   va_list ap;
