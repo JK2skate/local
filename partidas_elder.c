@@ -19,7 +19,15 @@ struct puntuacion{
   int num_partidas;
 }
 
-
+void libero_puntuaciones(struct puntuacion * puntuaciones, int cont){
+      int i;
+      for(i = 0; i< cont; i++){
+            if(puntuaciones[i].nombre){
+                  free(puntuaciones[i].nombre);
+            }
+      }
+      free(puntuaciones);
+}
 struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas, int *num_ninos, int *error){
   int i;
   int j;
@@ -31,7 +39,9 @@ struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas
 
   *error = 0;
 
-  struct puntuacion *puntuaciones = (strcuct puntuacion *)malloc(sizeof(struct puntuacion));
+  errno = 0;
+  struct puntuacion *aux = NULL;
+  struct puntuacion *puntuaciones = NULL;
 
   if(num_partidas == 0){
     *error = 1;
@@ -42,6 +52,17 @@ struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas
     *error = 1;
     return NULL;
   }
+
+ aux = (struct puntuacion *)realloc(puntuaciones, sizeof(struct puntuacion));
+
+ if(errno){
+       *error = errno;
+       libero_puntuaciones(puntuaciones, 0);
+       *num_ninos = 0;
+       return NULL;
+
+ }
+ puntuaciones = aux;
 
   //primer elemento sabemos con seguridad que no está en la tabla de puntuaciones
 
@@ -56,6 +77,13 @@ struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas
   }
 
   puntuaciones[0].nombre = strdup(partidas[0].nombre);
+
+  if (errno){
+          *error = errno;
+          libero_puntuaciones(puntuaciones, 1);
+          *numero = 0;
+          return NULL;
+        }
   puntuaciones[0].total = puntos_tot;
   puntuaciones[0].num_partidas = partidas_ind;
 
@@ -63,6 +91,7 @@ struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas
 
   for(i = 0; i<num_partidas ; i++){
     encontrado = 0;
+    errno = 0;
 
       for(j = 0; j<&num_ninos; j++){
 
@@ -83,9 +112,23 @@ struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas
 
           }
 
-          puntuaciones = (struct puntuacion *)realloc(puntuaciones, sizeof(puntuaciones)+ sizeof(struct puntuacion));
+          aux = (struct puntuacion *)realloc(puntuaciones, sizeof(struct puntuacion)*(&num_ninos+1));
+          if(errno){
+                *error = errno;
+                libero_puntuaciones(puntuaciones, &num_ninos);
+                *num_ninos = 0;
+                return NULL;
+
+          }
+          puntuaciones = aux;
 
           puntuaciones[&num_ninos].nombre = strdup(partidas[i].nombre);
+          if (errno){
+                  *error = errno;
+                  libero_puntuaciones(puntuaciones, &num_ninos+1);
+                  *numero = 0;
+                  return NULL;
+                }
           puntuaciones[&num_ninos].total = puntos_tot;
           puntuaciones[&num_ninos].num_partidas = partidas_ind;
 
@@ -97,19 +140,45 @@ struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas
 }
 
 int main(int argc, char **argv){
-  int num_partidas = 20;
+  int num_partidas = 5;
   int num_ninos = 0;
   int error = 0;
 
   int i;
+  int j;
 
 
   struct partida *partidas;
   struct puntuacion *puntuaciones;
 
   partidas = (struct partida *)malloc(sizeof(struct partida)*num_partidas);
+  for(j = 0; j< num_partidas;j++){
+        swtch(j){
+             case 0:
+                  partidas[j].puntos = 10;
+                  partidas[j].nombre = "oscar";
+                  break;
+            case 1:
+                  partidas[j].puntos = 2;
+                  partidas[j].nombre = "manuel";
+                  break;
+            case 2:
+                  partidas[j].puntos = 2;
+                  partidas[j].nombre = "oscar";
+                  break;
+            case 3:
+                  partidas[j].puntos = 20;
+                  partidas[j].nombre = "pedro";
+                  break;
+            case 4:
+                  partidas[j].puntos = 5;
+                  partidas[j].nombre = "manuel";
+                  break;
+            }
+       }
 
-  // partida = algo;
+
+
 
   puntuaciones = agrego_puntuacion(partidas, num_partidas, &num_ninos, &error);
 

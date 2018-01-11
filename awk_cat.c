@@ -34,17 +34,14 @@ int main(int argc, char **argv){
 
       if(hijo==0){
             signal(SIGINT, fin);
+            dup2(pipe[0], 0);
             execl("usr/bin/awk", "./awk", "-F:", "'{print $1 " "$2}'", pipe[0]);
+            fprintf(stderr, "Error exec %s\n", strerror(errno));
+            exit(1);
       }else{
-            dup2(pipe[1], STDOUT_FILENO);
+            dup2(pipe[1], 1);
             execl("/bin/cat", "./cat", "etc/passwd");
-            kill(hijo, SIGINT);
-            wait(&status);
-            
-
-
-
+            fprintf(stderr, "Error exec %s\n", strerror(errno));
+            exit(1);
       }
-
-      return 0;
 }
