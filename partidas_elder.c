@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 
 
 
@@ -17,7 +18,7 @@ struct puntuacion{
   float total;
   char *nombre;
   int num_partidas;
-}
+};
 
 void libero_puntuaciones(struct puntuacion * puntuaciones, int cont){
       int i;
@@ -81,22 +82,22 @@ struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas
   if (errno){
           *error = errno;
           libero_puntuaciones(puntuaciones, 1);
-          *numero = 0;
+          *num_ninos = 0;
           return NULL;
         }
   puntuaciones[0].total = puntos_tot;
   puntuaciones[0].num_partidas = partidas_ind;
 
-  *num_ninos++;
+  *num_ninos = *num_ninos +1;
 
   for(i = 0; i<num_partidas ; i++){
     encontrado = 0;
     errno = 0;
 
-      for(j = 0; j<&num_ninos; j++){
+      for(j = 0; j<*num_ninos; j++){
 
           if(strcmp(puntuaciones[j].nombre, partidas[i].nombre)==0){
-            encontrado++
+            encontrado++;
           }
       }
 
@@ -112,27 +113,27 @@ struct puntuacion *agrego_puntuacion(struct partida * partidas, int num_partidas
 
           }
 
-          aux = (struct puntuacion *)realloc(puntuaciones, sizeof(struct puntuacion)*(&num_ninos+1));
+          aux = (struct puntuacion *)realloc(puntuaciones, sizeof(struct puntuacion)*(*num_ninos+1));
           if(errno){
                 *error = errno;
-                libero_puntuaciones(puntuaciones, &num_ninos);
+                libero_puntuaciones(puntuaciones, *num_ninos);
                 *num_ninos = 0;
                 return NULL;
 
           }
           puntuaciones = aux;
 
-          puntuaciones[&num_ninos].nombre = strdup(partidas[i].nombre);
+          puntuaciones[*num_ninos].nombre = strdup(partidas[i].nombre);
           if (errno){
                   *error = errno;
-                  libero_puntuaciones(puntuaciones, &num_ninos+1);
-                  *numero = 0;
+                  libero_puntuaciones(puntuaciones, *num_ninos+1);
+                  *num_ninos = 0;
                   return NULL;
                 }
-          puntuaciones[&num_ninos].total = puntos_tot;
-          puntuaciones[&num_ninos].num_partidas = partidas_ind;
+          puntuaciones[*num_ninos].total = puntos_tot;
+          puntuaciones[*num_ninos].num_partidas = partidas_ind;
 
-          *num_ninos++
+          *num_ninos = *num_ninos+1;
       }
   }
 
@@ -148,12 +149,12 @@ int main(int argc, char **argv){
   int j;
 
 
-  struct partida *partidas;
-  struct puntuacion *puntuaciones;
+  struct partida *partidas = NULL;
+  struct puntuacion *puntuaciones = NULL;
 
   partidas = (struct partida *)malloc(sizeof(struct partida)*num_partidas);
   for(j = 0; j< num_partidas;j++){
-        swtch(j){
+        switch(j){
              case 0:
                   partidas[j].puntos = 10;
                   partidas[j].nombre = "oscar";
@@ -178,18 +179,21 @@ int main(int argc, char **argv){
        }
 
 
+for(i = 0; i< num_partidas; i++){
+    printf( "Niño número %i: Nombre: %s.   Puntos: %f. \n", i, partidas[i].nombre, partidas[i].puntos); 
+  }
 
 
   puntuaciones = agrego_puntuacion(partidas, num_partidas, &num_ninos, &error);
 
   for(i = 0; i< num_ninos; i++){
-    prtintf( "Niño número %i: Nombre: %s.   Puntos: %f.   Número de partidas: %i. \n", i, puntuaciones[i].nombre, puntuaciones[i].total, puntuaciones[i].num_partidas);
+    printf( "Niño número %i: Nombre: %s.   Puntos: %f.   Número de partidas: %i. \n", i, puntuaciones[i].nombre, puntuaciones[i].total, puntuaciones[i].num_partidas); 
   }
 
     for(i = 0; i< num_ninos; i++){
 
       free(puntuaciones[i].nombre);
-      free(puntuaciones[i]);
+      
 
 
     }
