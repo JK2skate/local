@@ -26,7 +26,7 @@ int operacion(int mode, int nargs, ...){
       for(i=0; i<nargs; i++){
             num = va_arg(ap, int);
             if(mode){
-                  reultado *= num;
+                  resultado *= num;
 
             }else{
                   resultado +=num;
@@ -49,9 +49,9 @@ int main(int argc, char **argv){
       int e4;
 
       e1 = operacion(0, 4, 2, 2, 6, 5);
-      e1 = operacion(1, 4, 2, 2, 2, 2);
-      e1 = operacion(0, 2, 6, 5);
-      e1 = operacion(1, 6, 0, 1, 1, 1, 1, 1);
+      e2 = operacion(1, 4, 2, 2, 2, 2);
+      e3 = operacion(0, 2, 6, 5);
+      e4 = operacion(1, 6, 0, 1, 1, 1, 1, 1);
 
       printf("Prueba 1. Resultado =  %d. Debería ser: 15\n", e1);
       printf("Prueba 2. Resultado =  %d. Debería ser: 16\n", e2);
